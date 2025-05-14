@@ -31,6 +31,14 @@ export interface Database {
           user_id?: string;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "categories_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       tasks: {
         Row: {
@@ -63,6 +71,20 @@ export interface Database {
           created_at?: string;
           due_date?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "tasks_category_id_fkey";
+            columns: ["category_id"];
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       users: {
         Row: {
@@ -86,6 +108,7 @@ export interface Database {
           display_name?: string | null;
           avatar_url?: string | null;
         };
+        Relationships: [];
       };
     };
     Views: {
