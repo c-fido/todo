@@ -34,14 +34,32 @@ const AuthForm = ({
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSignIn(email, password);
+    try {
+      const { session } = await signIn(email, password);
+      if (session) {
+        onSignIn(email, password);
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      setError(
+        error.message || "Failed to sign in. Please check your credentials.",
+      );
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSignUp(email, password, username);
+    try {
+      await signUp(email, password);
+      // After signup, we show a success message but don't automatically sign in
+      // as Supabase may require email confirmation depending on settings
+      setError("Account created! Please check your email for confirmation.");
+    } catch (error) {
+      console.error("Sign up error:", error);
+      setError(error.message || "Failed to create account. Please try again.");
+    }
   };
 
   if (!isOpen) return null;

@@ -162,7 +162,24 @@ const Home = () => {
       {isAuthenticated && (
         <Dialog open={showProfile} onOpenChange={setShowProfile}>
           <DialogContent className="sm:max-w-xl">
-            <ProfileView user={user} stats={stats} />
+            <ProfileView
+              userInfo={{
+                username: userData?.name,
+                email: userData?.email,
+                createdAt: profile?.created_at || new Date().toISOString(),
+                avatarUrl: userData?.avatar,
+              }}
+              taskStats={{
+                totalTasks: stats.totalTasks,
+                completedTasks: stats.completedTasks,
+                categoryCounts: categories.map((cat) => ({
+                  name: cat.name,
+                  count: tasks.filter((task) => task.category_id === cat.id)
+                    .length,
+                  color: cat.color,
+                })),
+              }}
+            />
           </DialogContent>
         </Dialog>
       )}
