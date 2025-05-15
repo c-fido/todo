@@ -4,10 +4,14 @@ import type { Database } from "../types/supabase";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+let supabase: ReturnType<typeof createClient<Database>> | null = null;
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error(
     "Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
   );
+} else {
+  supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export { supabase };

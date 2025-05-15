@@ -1,6 +1,16 @@
 import { supabase } from "./supabaseClient";
 import type { Database } from "../types/database.types";
 
+// Ensure supabase is available before making any database calls
+const ensureSupabase = () => {
+  if (!supabase) {
+    throw new Error(
+      "Supabase client is not initialized. Check your environment variables.",
+    );
+  }
+  return supabase;
+};
+
 // Types for our database entities
 export type User = Database["public"]["Tables"]["users"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
@@ -8,12 +18,13 @@ export type Task = Database["public"]["Tables"]["tasks"]["Row"];
 
 // User functions
 export async function getCurrentUser() {
+  const client = ensureSupabase();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase
+  const { data } = await client
     .from("users")
     .select("*")
     .eq("id", user.id)
@@ -27,7 +38,8 @@ export async function updateUserProfile(
   displayName: string,
   avatarUrl?: string,
 ) {
-  return supabase
+  const client = ensureSupabase();
+  return client
     .from("users")
     .update({
       display_name: displayName,
@@ -38,7 +50,8 @@ export async function updateUserProfile(
 
 // Category functions
 export async function getCategories(userId: string) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("categories")
     .select("*")
     .eq("user_id", userId)
@@ -53,7 +66,8 @@ export async function createCategory(
   color: string,
   userId: string,
 ) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("categories")
     .insert({
       name,
@@ -68,7 +82,8 @@ export async function createCategory(
 }
 
 export async function updateCategory(id: string, name: string, color: string) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("categories")
     .update({ name, color })
     .eq("id", id)
@@ -80,7 +95,8 @@ export async function updateCategory(id: string, name: string, color: string) {
 }
 
 export async function deleteCategory(id: string) {
-  const { error } = await supabase.from("categories").delete().eq("id", id);
+  const client = ensureSupabase();
+  const { error } = await client.from("categories").delete().eq("id", id);
 
   if (error) throw error;
   return true;
@@ -88,7 +104,8 @@ export async function deleteCategory(id: string) {
 
 // Task functions
 export async function getTasks(userId: string) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("tasks")
     .select(
       `
@@ -110,7 +127,8 @@ export async function createTask(
   userId: string,
   dueDate: string | null = null,
 ) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("tasks")
     .insert({
       title,
@@ -131,7 +149,8 @@ export async function updateTask(
   id: string,
   updates: Partial<Omit<Task, "id" | "created_at" | "user_id">>,
 ) {
-  const { data, error } = await supabase
+  const client = ensureSupabase();
+  const { data, error } = await client
     .from("tasks")
     .update(updates)
     .eq("id", id)
@@ -147,7 +166,8 @@ export async function toggleTaskCompletion(id: string, isComplete: boolean) {
 }
 
 export async function deleteTask(id: string) {
-  const { error } = await supabase.from("tasks").delete().eq("id", id);
+  const client = ensureSupabase();
+  const { error } = await client.from("tasks").delete().eq("id", id);
 
   if (error) throw error;
   return true;
@@ -155,7 +175,8 @@ export async function deleteTask(id: string) {
 
 // Statistics functions
 export async function getUserTaskStats(userId: string) {
-  const { data: tasks, error } = await supabase
+  const client = ensureSupabase();
+  const { data: tasks, error } = await client
     .from("tasks")
     .select("is_complete, category_id, categories(name, color)")
     .eq("user_id", userId);
